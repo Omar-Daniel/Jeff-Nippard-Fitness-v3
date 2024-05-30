@@ -1,0 +1,367 @@
+{%- if section.settings.background_type == 'boxed' -%}
+  {%- assign is_boxed = true -%}
+{%- else -%}
+  {%- assign is_boxed = false -%}
+{%- endif -%}
+
+<style>
+  #shopify-section-{{ section.id }} {
+    {%- if section.settings.text_color == 'rgba(0,0,0,0)' -%}
+      {%- assign heading_color = settings.heading_color -%}
+      {%- assign text_color = settings.text_color -%}
+    {%- else -%}
+      {%- assign heading_color = section.settings.text_color -%}
+      {%- assign text_color = section.settings.text_color -%}
+    {%- endif -%}
+
+    {%- if section.settings.button_background == 'rgba(0,0,0,0)' -%}
+      {%- assign button_background = settings.primary_button_background -%}
+    {%- else -%}
+      {%- assign button_background = section.settings.button_background -%}
+    {%- endif -%}
+
+    {%- if section.settings.button_text_color == 'rgba(0,0,0,0)' -%}
+      {%- assign button_text_color = settings.primary_button_text_color -%}
+    {%- else -%}
+      {%- assign button_text_color = section.settings.button_text_color -%}
+    {%- endif -%}
+
+    --heading-color: {{ heading_color.red }}, {{ heading_color.green }}, {{ heading_color.blue }};
+    --text-color: {{ text_color.red }}, {{ text_color.green }}, {{ text_color.blue }};
+    --primary-button-background: {{ button_background.red }}, {{ button_background.green }}, {{ button_background.blue }};
+    --primary-button-text-color: {{ button_text_color.red }}, {{ button_text_color.green }}, {{ button_text_color.blue }};
+
+    --section-accent-background: {{ section.settings.accent_background.red }} {{ section.settings.accent_background.green }} {{ section.settings.accent_background.blue }} / {{ section.settings.accent_background.alpha }};
+    --section-autoplay-duration: {{ section.settings.cycle_speed }}s;
+    --section-animation-play-state: paused;
+  }
+
+</style>
+
+{% render 'custom-margin-style', id: section.id, mt: section.settings.mt, mb: section.settings.mb, mt_mobile: section.settings.mt_mobile, mb_mobile: section.settings.mb_mobile %}
+
+{% if section.blocks.size > 0 %}
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css'>
+  <style>
+    html {
+      font-family: var(--text-font-family);
+      font-weight: var(--text-font-weight);
+      font-style: var(--text-font-style);
+      font-size: calc(var(--base-font-size) - 1px);
+      color: rgb(var(--text-color));
+      background: rgb(var(--background));
+      line-height: 1.71429;
+    }
+    .section {
+      padding: 0;      
+    }
+    .container {
+      width: 100%;
+      max-width: var(--container-max-width);
+    }
+    a {
+      color: inherit;
+    }
+    nav {
+      color: inherit;
+      background-color: inherit;
+      width: inherit;
+      height: inherit;
+      line-height: inherit;
+      -webkit-box-shadow: none;
+      box-shadow: none;
+    }
+    nav a {
+      color: inherit;
+    }
+    nav ul a {
+      -webkit-transition:initial;
+      transition:initial;
+      font-size: initial;
+      color: initial;
+      display: initial;
+      padding: initial;
+      cursor: initial;
+    }
+    .breadcrumb {
+      font-size: inherit;
+      color: inherit;
+    }
+    button:focus {
+      background-color: initial;
+    }
+    .input__field, #shopify-product-reviews .spr-form-input-text, #shopify-product-reviews .spr-form-input-email, #shopify-product-reviews .spr-form-input-textarea,
+    input:not([type]), input[type=text]:not(.browser-default), input[type=password]:not(.browser-default), input[type=email]:not(.browser-default), input[type=url]:not(.browser-default), input[type=time]:not(.browser-default), input[type=date]:not(.browser-default), input[type=datetime]:not(.browser-default), input[type=datetime-local]:not(.browser-default), input[type=tel]:not(.browser-default), input[type=number]:not(.browser-default), input[type=search]:not(.browser-default), textarea.materialize-textarea {
+      -webkit-appearance: none;
+      appearance: none;
+      height: var(--form-input-field-height);
+      line-height: var(--form-input-field-height);
+      border-radius: var(--button-border-radius);
+      border: 1px solid rgba(var(--text-color), .5);
+      box-shadow: none;
+      color: var(--form-input-color);
+      text-align: start;
+      background: none;
+      width: 100%;
+      padding: 0 18px;
+      transition: border .2s ease-in-out, box-shadow .2s ease-in-out;
+      margin-bottom: 0;
+    }
+    input:not([type]):focus:not([readonly]), input[type=text]:not(.browser-default):focus:not([readonly]), input[type=password]:not(.browser-default):focus:not([readonly]), input[type=email]:not(.browser-default):focus:not([readonly]), input[type=url]:not(.browser-default):focus:not([readonly]), input[type=time]:not(.browser-default):focus:not([readonly]), input[type=date]:not(.browser-default):focus:not([readonly]), input[type=datetime]:not(.browser-default):focus:not([readonly]), input[type=datetime-local]:not(.browser-default):focus:not([readonly]), input[type=tel]:not(.browser-default):focus:not([readonly]), input[type=number]:not(.browser-default):focus:not([readonly]), input[type=search]:not(.browser-default):focus:not([readonly]), textarea.materialize-textarea:focus:not([readonly]) {
+      border: 1px solid rgb(var(--text-color));
+      box-shadow: 0 0 0 1px rgb(var(--text-color)) inset;
+      outline: none;
+    }
+    .carousel-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 0;
+      z-index: 3;
+      cursor: pointer;
+    }
+    .carousel-arrow.carousel-next {
+      left: initial;
+      right: 0;
+    }
+    #shopify-section-{{ section.id }} .carousel-frame-image {
+      position: absolute;
+      width: calc(var(--container-inner-width) / 3);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1.18);
+      z-index: 2;
+    }
+    #shopify-section-{{ section.id }} .carousel {
+      height: 650px;      
+    }
+    #shopify-section-{{ section.id }} .carousel .carousel-item {
+      width: 387px;
+      height: auto;
+      aspect-ratio: 660 / 910;
+    }
+    #shopify-section-{{ section.id }} .carousel-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    @media (max-width: 1280px) {
+      #shopify-section-{{ section.id }} .carousel-frame-image {
+        transform: translate(-50%, -50%) scale(1.13);
+      }
+      #shopify-section-{{ section.id }} .carousel .carousel-item {
+        max-width: calc(var(--container-inner-width)/3);
+      }
+    }
+    @media (max-width: 999px) {
+      #shopify-section-{{ section.id }} .carousel {
+        height: 55vw;      
+      }      
+    }
+    @media (max-width: 740px) {
+      .carousel-arrow {
+        width: 30px;
+      }
+    }
+  </style>
+{% endif %}
+
+<section class="section {% if is_boxed == false %}section--flush{% endif %}">
+  <div {% if is_boxed %}class="container"{% endif %}>    
+    {% if section.blocks.size > 0 %}
+      <div class="3d-carousel-wrapper relative">
+        {% if section.settings.image != blank %}
+          {%- capture id_attribute -%}section-{{ section.id }}-{{ section.settings.image.id }}{%- endcapture -%}
+          {{- section.settings.image | image_url: width: section.settings.image.width | image_tag: id: id_attribute, loading: 'lazy', sizes: '(max-width: 740px) calc(100vw - 96px), (max-width: 999px) calc(100vw - 160px), 400px', widths: '400,500,600,700,800,1000,1200,1400', class: 'carousel-frame-image' -}}
+        {% endif %}
+        <svg class="carousel-arrow carousel-prev" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="21.8934" cy="21.8936" r="21.8937" transform="rotate(-180 21.8934 21.8936)" fill="#2253AA"/>
+          <path d="M25.2988 29.1915L17.5144 21.8936L25.2988 14.5957" stroke="white" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <svg class="carousel-arrow carousel-next" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="21.8937" cy="21.8937" r="21.8937" fill="#2253AA"/>
+          <path d="M18.4883 14.5958L26.2727 21.8937L18.4883 29.1916" stroke="white" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <div class="3d-carousel carousel">
+          {% for block in section.blocks %}
+            {% if block.settings.image %}
+              {%- capture id_attribute -%}block-{{ block.id }}-{{ block.settings.image.id }}{%- endcapture -%}
+              <div class="carousel-item">
+                {{- block.settings.image | image_url: width: block.settings.image.width | image_tag: id: id_attribute, loading: 'lazy', sizes: '(max-width: 740px) calc(100vw - 96px), (max-width: 999px) calc(100vw - 160px), 400px', widths: '400,500,600,700,800,1000,1200,1400', class: 'carousel-image' -}}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% if section.blocks.size > 0 %}
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js'></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const elem = document.querySelector(`#shopify-section-{{ section.id }} .carousel`);
+      if (!elem) {
+        console.error('Carousel element not found');
+        return;
+      }
+    
+      const options = {
+        numVisible: 5,
+        indicators: false
+      };
+    
+      let instance = M.Carousel.init(elem, options);
+    
+      const prevButton = document.querySelector(`#shopify-section-{{ section.id }} .carousel-prev`);
+      if (prevButton) {
+        prevButton.addEventListener('click', function() {
+          instance.prev();
+        });
+      } else {
+        console.error('Previous button not found');
+      }
+    
+      const nextButton = document.querySelector(`#shopify-section-{{ section.id }} .carousel-next`);
+      if (nextButton) {
+        nextButton.addEventListener('click', function() {
+          instance.next();
+        });
+      } else {
+        console.error('Next button not found');
+      }
+    
+      window.addEventListener('resize', function() {
+        instance = M.Carousel.init(elem, options);
+      }, true);
+    
+      if (instance) {
+        const interval = setInterval(() => {
+          instance.next();
+        }, {{ section.settings.cycle_speed | times: 1000 }});
+      } else {
+        console.error('Failed to initialize carousel instance');
+      }
+    });
+  </script>
+{% endif %}
+  
+{% schema %}
+{
+  "name": "3D Carousel",
+  "class": "shopify-section--3d-carousel",
+  "disabled_on": {
+    "groups": ["header", "custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "background_type",
+      "label": "Background",
+      "options": [
+        {
+          "value": "full_width",
+          "label": "Full width"
+        },
+        {
+          "value": "boxed",
+          "label": "Boxed"
+        }
+      ],
+      "default": "full_width"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Frame"
+    },
+    {
+      "type": "range",
+      "id": "cycle_speed",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "label": "Change slide every",
+      "default": 3
+    },
+    {
+      "type": "color",
+      "id": "accent_background",
+      "label": "Background",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "header",
+      "content": "Margins"
+    },
+    {
+      "type": "range",
+      "id": "mt",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "mb",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "mt_mobile",
+      "label": "Top (mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "mb_mobile",
+      "label": "Bottom (mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "1400 x 1400px .jpg recommended"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "3D Carousel",
+      "settings": {},
+      "blocks": [
+        {
+          "type": "item"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

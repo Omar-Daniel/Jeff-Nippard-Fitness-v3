@@ -1,0 +1,394 @@
+{%- if section.settings.background_type == 'boxed' -%}
+  {%- assign is_boxed = true -%}
+{%- else -%}
+  {%- assign is_boxed = false -%}
+{%- endif -%}
+
+<style>
+  #shopify-section-{{ section.id }} {
+    {%- if section.settings.text_color == 'rgba(0,0,0,0)' -%}
+      {%- assign heading_color = settings.heading_color -%}
+      {%- assign text_color = settings.text_color -%}
+    {%- else -%}
+      {%- assign heading_color = section.settings.text_color -%}
+      {%- assign text_color = section.settings.text_color -%}
+    {%- endif -%}
+
+    {%- if section.settings.button_background == 'rgba(0,0,0,0)' -%}
+      {%- assign button_background = settings.primary_button_background -%}
+    {%- else -%}
+      {%- assign button_background = section.settings.button_background -%}
+    {%- endif -%}
+
+    {%- if section.settings.button_text_color == 'rgba(0,0,0,0)' -%}
+      {%- assign button_text_color = settings.primary_button_text_color -%}
+    {%- else -%}
+      {%- assign button_text_color = section.settings.button_text_color -%}
+    {%- endif -%}
+
+    --heading-color: {{ heading_color.red }}, {{ heading_color.green }}, {{ heading_color.blue }};
+    --text-color: {{ text_color.red }}, {{ text_color.green }}, {{ text_color.blue }};
+    --primary-button-background: {{ button_background.red }}, {{ button_background.green }}, {{ button_background.blue }};
+    --primary-button-text-color: {{ button_text_color.red }}, {{ button_text_color.green }}, {{ button_text_color.blue }};
+
+    --section-accent-background: {{ section.settings.accent_background.red }} {{ section.settings.accent_background.green }} {{ section.settings.accent_background.blue }} / {{ section.settings.accent_background.alpha }};
+    --section-autoplay-duration: {{ section.settings.cycle_speed }}s;
+    --section-animation-play-state: paused;
+  }
+
+  {%- if section.settings.background_overlap != 'both' -%}
+    /* We have to remove some extra spacing adding in non-overlap mode */
+    @media screen and (max-width: 999px) {
+      {%- if section.settings.background_overlap == 'image' -%}
+        {%- unless is_boxed -%}
+          #shopify-section-{{ section.id }} .section {
+            margin-top: 0;
+          }
+
+          #shopify-section-{{ section.id }} .image-with-text {
+            margin-bottom: calc(-1 * var(--vertical-breather)) !important;
+          }
+        {%- else -%}
+          #shopify-section-{{ section.id }} .image-with-text {
+            margin-bottom: calc(-1 * var(--container-gutter)) !important;
+          }
+        {%- endunless -%}
+      {%- elsif section.settings.background_overlap == 'text' -%}
+        {%- unless is_boxed -%}
+          #shopify-section-{{ section.id }} .section {
+            margin-bottom: 0;
+          }
+
+          #shopify-section-{{ section.id }} .image-with-text {
+            margin-top: calc(-1 * var(--vertical-breather)) !important;
+          }
+        {%- else -%}
+          #shopify-section-{{ section.id }} .image-with-text {
+            margin-top: calc(-1 * var(--container-gutter)) !important;
+          }
+        {%- endunless -%}
+      {%- endif -%}
+    }
+  {%- endif -%}
+
+  #shopify-section-{{ section.id }} .image-with-text__wrapper {
+    flex-direction: column;
+  }
+  #shopify-section-{{ section.id }} .image-with-text__content-wrapper {
+    width: 100%;
+    margin: 0;
+  }
+  #shopify-section-{{ section.id }} .image-with-text__image-wrapper {
+    margin: 1rem 0;
+  }
+  .product-needed-image-gallery {
+    overflow: hidden;
+    --section-products-per-row: 5;
+  }
+  .product-needed-image {
+    border-radius: 15px;
+    border: 1px solid rgba(var(--text-color), 0.5);
+  }
+  .gallery-container {
+    margin-top: 10px;
+  }
+  .product-needed-image-gallery .product-list__inner {
+    gap: var(--grid-gap);
+  }
+  .gallery-list__prev-next {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .gallery-list__arrow {
+    width: 45px !important;
+    height: 45px !important;
+  }
+  .gallery-list__arrow[disabled] {
+    opacity: 0;
+    visibility: hidden;
+  }
+  @media (min-width: 1000px) {
+    #shopify-section-{{ section.id }} .image-with-text__inner {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 40px;
+    }
+    #shopify-section-{{ section.id }} .image-with-text__image-wrapper {
+      width: 100%;
+      margin: 0;
+      text-align: center;
+    }
+    #shopify-section-{{ section.id }} .image-with-text__image-wrapper img {
+      max-width: 620px;
+    }
+  }  
+</style>
+
+{% render 'custom-margin-style', id: section.id, mt: section.settings.mt, mb: section.settings.mb, mt_mobile: section.settings.mt_mobile, mb_mobile: section.settings.mb_mobile %}
+
+<section class="section {% if section.settings.background_overlap == 'both' and is_boxed == false %}section--flush{% endif %}">
+  <div {% if is_boxed %}class="container"{% endif %}>
+
+    <image-with-text {% if section.settings.reveal_on_scroll %}reveal-on-scroll{% endif %} class="image-with-text {% if is_boxed %}image-with-text--boxed{% endif %} {% if section.settings.image_position == 'right' %}image-with-text--reverse{% endif %} image-with-text--overlap-{{ section.settings.background_overlap }}" style="--image-aspect-ratio: {{ first_block.settings.image.aspect_ratio | default: 1 }}; --image-max-height: {{ first_block.settings.image.height }}px">
+      <div class="{% unless is_boxed %}container{% endunless %}">
+        <div class="image-with-text__wrapper">
+          {%- assign first_image_aspect_ratio = section.settings.image.aspect_ratio | default: 1 -%}
+          {%- assign image_count = 0 -%}
+          <div class="image-with-text__inner">
+            <div class="image-with-text__content-wrapper">
+              <div class="image-with-text__content-list">
+                <image-with-text-item class="image-with-text__content text-container text--{{ section.settings.text_alignment }}" {{ section.shopify_attributes }}>
+                  {% if section.settings.title != blank %}
+                    <h2 class="heading h3">{{ section.settings.title }}</h2>
+                  {% endif %}
+                  <div class="image-with-text__text-wrapper rte color-gray">
+                    {% if section.settings.content != blank %}
+                      {{- section.settings.content -}}
+                    {% elsif section.settings.content_liquid != blank %}
+                      {{- section.settings.content_liquid -}}
+                    {% endif %}
+                  </div>
+                </image-with-text-item>
+              </div>
+            </div>
+            <div class="image-with-text__image-wrapper">
+            {%- if section.settings.image != blank -%}
+              {%- capture id_attribute -%}section-{{ section.id }}-{{ section.settings.image.id }}{%- endcapture -%}
+              {%- assign is_hidden = true -%}
+
+              {%- if image_count == 0 -%}
+                {%- assign is_hidden = false -%}
+              {%- endif -%}
+
+              {%- if section.settings.reveal_on_scroll -%}
+                {%- if is_hidden -%}
+                  {{- section.settings.image | image_url: width: section.settings.image.width | image_tag: id: id_attribute, loading: 'lazy', sizes: '(max-width: 740px) calc(100vw - 96px), (max-width: 999px) calc(100vw - 160px), 600px', widths: '600,700,800,1000,1200,1400', reveal-visibility: true, hidden: true, class: 'image-with-text__image' -}}
+                {%- else -%}
+                  {{- section.settings.image | image_url: width: section.settings.image.width | image_tag: id: id_attribute, loading: 'lazy', sizes: '(max-width: 740px) calc(100vw - 96px), (max-width: 999px) calc(100vw - 160px), 600px', widths: '600,700,800,1000,1200,1400', reveal-visibility: true, class: 'image-with-text__image' -}}
+                {%- endif -%}
+              {%- else -%}
+                {%- if is_hidden -%}
+                  {{- section.settings.image | image_url: width: section.settings.image.width | image_tag: id: id_attribute, loading: 'lazy', sizes: '(max-width: 740px) calc(100vw - 96px), (max-width: 999px) calc(100vw - 160px), 600px', widths: '600,700,800,1000,1200,1400', hidden: true, class: 'image-with-text__image' -}}
+                {%- else -%}
+                  {{- section.settings.image | image_url: width: section.settings.image.width | image_tag: id: id_attribute, loading: 'lazy', sizes: '(max-width: 740px) calc(100vw - 96px), (max-width: 999px) calc(100vw - 160px), 600px', widths: '600,700,800,1000,1200,1400', class: 'image-with-text__image' -}}
+                {%- endif -%}
+              {%- endif -%}
+
+            {% elsif section.settings.image_liquid != blank %}
+              <img src="{{ section.settings.image_liquid }}"/>
+            {%- endif -%}
+          </div>
+          </div>
+
+          {% if product.metafields.custom.need_image_gallery != blank %}
+            {% assign gallery_size = 0 %}
+            <div class="gallery-container relative">
+              <gallery-list class="product-needed-image-gallery" {{ gallery_size }}>
+                <div class="scroller">
+                  <div class="product-list__inner product-list__inner--scroller hide-scrollbar">
+                    {% for image in product.metafields.custom.need_image_gallery.value %}
+                      {% assign gallery_size = gallery_size | plus: 1 %}
+                      <img class="product-needed-image" src="{{ image | image_url: width: 300 }}">
+                    {% endfor %}
+                  </div>
+                </div>
+              </gallery-list>
+              {% comment %}
+              {% if gallery_size > 4 %}                
+                <prev-next-buttons class="gallery-list__prev-next">
+                  <button class="gallery-list__arrow prev-next-button prev-next-button--prev" disabled data-action="prev">
+                    <span class="visually-hidden">{{ 'general.accessibility.previous' | t }}</span>
+                    {%- include 'icon' with 'nav-arrow-left', block: true, direction_aware: true -%}
+                  </button>
+    
+                  <button class="gallery-list__arrow prev-next-button prev-next-button--next" data-action="next">
+                    <span class="visually-hidden">{{ 'general.accessibility.next' | t }}</span>
+                    {%- include 'icon' with 'nav-arrow-right', block: true, direction_aware: true -%}
+                  </button>
+                </prev-next-buttons>
+              {% endif %}
+              {% endcomment %}
+            </div>
+          {% endif %}
+        </div>
+        
+      </div>
+    </image-with-text>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "What you will need",
+  "class": "shopify-section--what-will-need",
+  "disabled_on": {
+    "groups": ["header", "custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "background_type",
+      "label": "Background",
+      "options": [
+        {
+          "value": "full_width",
+          "label": "Full width"
+        },
+        {
+          "value": "boxed",
+          "label": "Boxed"
+        }
+      ],
+      "default": "full_width"
+    },
+    {
+      "type": "select",
+      "id": "background_overlap",
+      "label": "Background overlap",
+      "info": "Add an accent background color below.",
+      "options": [
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "text",
+          "label": "Text"
+        },
+        {
+          "value": "both",
+          "label": "Both"
+        }
+      ],
+      "default": "image"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "WHAT YOU WILL NEED"
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "Content"
+    },
+    {
+      "type": "liquid",
+      "id": "content_liquid",
+      "label": "Content(dynamic)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "liquid",
+      "id": "image_liquid",
+      "label": "Image(dynamic)"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "color",
+      "id": "accent_background",
+      "label": "Accent background",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Button background",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "header",
+      "content": "Margins"
+    },
+    {
+      "type": "range",
+      "id": "mt",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "mb",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "mt_mobile",
+      "label": "Top (mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "mb_mobile",
+      "label": "Bottom (mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    }
+  ],
+  "presets": [
+    {
+      "name": "What you will need",
+      "settings": {}      
+    }
+  ]
+}
+{% endschema %}

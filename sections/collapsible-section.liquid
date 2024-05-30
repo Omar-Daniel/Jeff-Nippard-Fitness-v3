@@ -1,0 +1,303 @@
+{%- if section.settings.background != settings.background and section.settings.background != 'rgba(0,0,0,0)' -%}
+  {%- assign blends_with_background = false -%}
+{%- else -%}
+  {%- assign blends_with_background = true -%}
+{%- endif -%}
+
+
+<style>
+  #shopify-section-{{ section.id }} {
+    {%- if section.settings.text_color == 'rgba(0,0,0,0)' -%}
+      {%- assign heading_color = settings.heading_color -%}
+      {%- assign text_color = settings.text_color -%}
+    {%- else -%}
+      {%- assign heading_color = section.settings.text_color -%}
+      {%- assign text_color = section.settings.text_color -%}
+    {%- endif -%}
+
+    {%- if section.settings.background == 'rgba(0,0,0,0)' -%}
+      {%- assign section_background = settings.background -%}
+      {%- assign secondary_background = settings.secondary_background -%}
+    {%- else -%}
+      {%- assign section_background = section.settings.background -%}
+      {%- assign secondary_background = section.settings.background | color_mix: text_color, 85 -%}
+    {%- endif -%}
+
+    --secondary-background: {{ secondary_background.red }}, {{ secondary_background.green }}, {{ secondary_background.blue }};
+    --heading-color: {{ heading_color.red }}, {{ heading_color.green }}, {{ heading_color.blue }};
+    --text-color: {{ text_color.red }}, {{ text_color.green }}, {{ text_color.blue }};
+
+    --section-background: {{ section_background.red }}, {{ section_background.green }}, {{ section_background.blue }};
+  }
+</style>
+
+{% render 'custom-margin-style', id: section.id, mt: section.settings.mt, mb: section.settings.mb, mt_mobile: section.settings.mt_mobile, mb_mobile: section.settings.mb_mobile %}
+
+{%- assign categories = section.blocks | where: 'type', 'category' -%}
+
+
+<section class="section {% if template.name == 'page' and template.suffix contains 'faq' %}section--tight{% endif %} {% unless blends_with_background %}section--flush{% endunless %}" {% if product.title == 'Powerbuilding Bundle' %} style="display:none" {% endif %} {% if product.title == 'The Pure Bodybuilding Program Bundle' %} style="display:none" {% endif %}>
+  <div class="section__color-wrapper">
+    <div class="container">
+      <div class="{% unless blends_with_background %}vertical-breather{% endunless %}">
+        {%- if section.settings.title != blank or section.settings.content != blank -%}
+          <header class="section__header {% if section.settings.content != blank %}section__header--tight{% endif %} text-container">
+            {%- if section.settings.title != blank -%}
+              {% if product.title contains 'Fundamentals Hypertrophy Program' %}
+                <h3 class="heading h2">What’s Included</h3>
+                <p>{{product.metafields.contents.contents[3]}}</p>
+              {% else %}
+                <h3 class="heading h2">{{ section.settings.title | escape }}</h3>
+              {% endif %}
+            {%- endif -%}
+
+            {%- if section.settings.content -%}
+              {{- section.settings.content -}}
+            {%- endif -%}
+          </header>
+        {%- endif -%}        
+        <div class="faq image--{{ section.settings.desktop_image_pos }}">
+          {% if section.settings.image != blank %}
+            {%- capture id_attribute -%}section-{{ section.id }}-{{ section.settings.image.id }}{%- endcapture -%}
+            {{- section.settings.image | image_url: width: section.settings.image.width | image_tag: id: id_attribute, loading: 'lazy', sizes: '(max-width: 740px) calc(100vw - 96px), (max-width: 999px) calc(100vw - 160px), 600px', widths: '600,700,800,1000,1200,1400', class: 'image-with-text__image' -}}
+          {% elsif section.settings.liquid_image != blank and section.settings.liquid_image != '' %}
+            <img src="{{ section.settings.liquid_image }}" alt="" title="">
+          {% endif %}
+          
+          <div class="faq__wrapper" itemscope itemtype="https://schema.org/FAQPage">
+            {% assign index = 0 %}
+            {%- for block in section.blocks -%}
+              {%- case block.type -%}
+                {%- when 'category' -%}
+                  <h2 id="category-{{ section.id }}-{{ block.id }}" class="faq__category heading h6 anchor" {{ block.shopify_attributes }}>
+                    {{- block.settings.title |  escape -}}
+                  </h2>
+
+                {%- when 'question' -%}
+                  {% if block.settings.title != blank or block.settings.title_liquid != blank or block.settings.answer != blank or block.settings.answer_liquid != blank %}
+                    {% if block.settings.title == blank and block.settings.title_liquid == blank %}{% continue %}{% endif %}
+                    {% assign index = index | plus: 1 %}
+                    <div class="faq__item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                      <button is="toggle-button" class="collapsible-toggle text--strong" aria-controls="block-{{ section.id }}-{{ block.id }}" aria-expanded="{% if index == 1 %}true{% else %}false{% endif %}" itemprop="name">
+                        <span class="faq-title">
+                          <img src="{{ 'circle-check.png' | asset_img_url }}">
+                          {% if block.settings.title != blank %}
+                            {{- block.settings.title -}}
+                          {% elsif block.settings.title_liquid != blank %}
+                            {{- block.settings.title_liquid -}}
+                          {% endif %}
+                        </span>
+                        <span class="animated-plus"></span>
+                      </button>
+  
+                      <collapsible-content {% if index == 1 %}open{% endif %} id="block-{{ section.id }}-{{ block.id }}" class="collapsible anchor" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer" {{ block.shopify_attributes }}>
+                        <div class="collapsible__content text-container rte color-gray" itemprop="text">
+                          {% if block.settings.answer != blank %}
+                            {{ block.settings.answer }}
+                          {% elsif block.settings.answer_liquid != blank %}
+                            {{ block.settings.answer_liquid }}
+                          {% endif %}
+                        </div>
+                      </collapsible-content>
+                    </div>
+                  {% endif %}
+              {%- endcase -%}
+            {%- endfor -%}
+
+            {% if index == 0 %}
+              <style>
+                #shopify-section-{{ section.id }} {
+                  display: none;
+                }
+              </style>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Collapsible Section",
+  "class": "shopify-section--collapsible-section",
+  "disabled_on": {
+    "templates": ["password"],
+    "groups": ["header", "custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_navigation",
+      "label": "Show navigation",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Collapsible Heading"
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "Content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "liquid",
+      "id": "liquid_image",
+      "label": "Image src (dynamic)"
+    },
+    {
+      "type": "select",
+      "id": "desktop_image_pos",
+      "label": "Desktop Image position",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "right"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "header",
+      "content": "Margins"
+    },
+    {
+      "type": "range",
+      "id": "mt",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "mb",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "mt_mobile",
+      "label": "Top (mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "mb_mobile",
+      "label": "Bottom (mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "Category",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Category"
+        }
+      ]
+    },
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Question"
+        },
+        {
+          "type": "liquid",
+          "id": "title_liquid",
+          "label": "Question(dynamic content)"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer"
+        },
+        {
+          "type": "liquid",
+          "id": "answer_liquid",
+          "label": "Answer(dynamic content)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collapsible Section",
+      "blocks": [
+        {
+          "type": "question",
+          "settings": {
+            "title": "Do you ship overseas?",
+            "answer": "<p>Yes, we ship all over the world. Shipping costs will apply, and will be added at checkout. We run discounts and promotions all year, so stay tuned for exclusive deals.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "title": "How long will it take to get my order?",
+            "answer": "<p>It depends on where you are. Orders processed here will take 5-7 business days to arrive. Overseas deliveries can take anywhere from 7-16 days. Delivery details will be provided in your confirmation email.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "title": "Any question?",
+            "answer": "<p>You can contact us through our contact page! We will be happy to assist you.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

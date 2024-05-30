@@ -1,0 +1,1 @@
+{"sections":{"main":{"type":"main-blog","custom_css":[".breadcrumb {display: none;}","h1.heading {font-size: 35px; text-transform: uppercase;}"],"settings":{"show_blog_title":true,"show_tags":true,"show_category":true,"show_excerpt":true,"articles_per_page":9}}},"order":["main"]}
